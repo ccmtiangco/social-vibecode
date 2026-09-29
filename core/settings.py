@@ -125,6 +125,10 @@ MEDIA_URL = '/media/'
 # Local development only; production should use durable object storage.
 MEDIA_ROOT = BASE_DIR / 'media'
 
+FEED_PAGE_SIZE = 20
+FEED_AD_INTERVAL = 8
+FEED_MAX_ADS_PER_PAGE = 2
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

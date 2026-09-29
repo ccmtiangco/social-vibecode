@@ -69,17 +69,17 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 
 **Goal:** Serve a bounded chronological feed and interleave eligible ads without changing organic pagination progress.
 
-- [ ] Implement a feed service that gathers the viewer's followed user IDs, includes the viewer's own posts, and queries matching `Post` activities in descending `(created_at, id)` order.
-- [ ] Use keyset pagination with a cursor based on the last organic `(created_at, id)` pair; do not use large offsets or let inserted ads advance the organic cursor.
-- [ ] Fetch a page plus a small lookahead only. Load authors and reshared originals with `select_related` and images with `prefetch_related` to avoid N+1 queries.
-- [ ] Add focused query/index validation for the feed's author/time ordering and the follow lookup path.
-- [ ] Implement a separate, bounded ad-candidate query for active, approved creatives in active, funded campaigns whose date window includes the current time.
-- [ ] Interleave sponsored items at a configurable fixed interval (initial target: one ad after every eight organic activities) and enforce a maximum ad count per page.
-- [ ] Keep organic pagination deterministic if campaign eligibility changes between requests; use a signed cursor or equivalent page state where needed, and do not skip or duplicate organic posts because an ad was inserted.
-- [ ] Avoid repeating the same creative within a page and apply an MVP viewer/campaign frequency cap across pages using recent impression state or cursor/session state.
-- [ ] Clearly mark each inserted item as `Sponsored`; record an impression only when the chosen rendered/viewed event occurs, not when merely selecting a candidate.
-- [ ] Recheck campaign status and remaining funds before charging an impression so a stale candidate cannot spend a paused or exhausted campaign.
-- [ ] Add tests for chronological ordering and timestamp ties, own-post inclusion, followed-author filtering, reshare activity ordering, cursor continuation, exact ad interval/cap, no-eligible-ad behavior, and frequency limits.
+- [x] Implement a feed service that gathers the viewer's followed user IDs, includes the viewer's own posts, and queries matching `Post` activities in descending `(created_at, id)` order.
+- [x] Use keyset pagination with a cursor based on the last organic `(created_at, id)` pair; do not use large offsets or let inserted ads advance the organic cursor.
+- [x] Fetch a page plus a small lookahead only. Load authors and reshared originals with `select_related` and images with `prefetch_related` to avoid N+1 queries.
+- [x] Add focused query/index validation for the feed's author/time ordering and the follow lookup path.
+- [x] Implement a separate, bounded ad-candidate query for active, approved creatives in active, funded campaigns whose date window includes the current time.
+- [x] Interleave sponsored items at a configurable fixed interval (initial target: one ad after every eight organic activities) and enforce a maximum ad count per page.
+- [x] Keep organic pagination deterministic if campaign eligibility changes between requests; use a signed cursor or equivalent page state where needed, and do not skip or duplicate organic posts because an ad was inserted.
+- [x] Avoid repeating the same creative within a page and apply an MVP viewer/campaign frequency cap across pages using recent impression state or cursor/session state.
+- [x] Clearly mark each inserted item as `Sponsored`; keep candidate selection non-billable, with impression recording deferred until a rendered/viewed event.
+- [x] Recheck campaign status and remaining funds before charging an impression so a stale candidate cannot spend a paused or exhausted campaign.
+- [x] Add tests for chronological ordering and timestamp ties, own-post inclusion, followed-author filtering, reshare activity ordering, cursor continuation, exact ad interval/cap, no-eligible-ad behavior, and frequency limits.
 
 **Suggested commit:** `feat(feed): add chronological feed with sponsored placements`
 
