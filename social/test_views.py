@@ -2,8 +2,12 @@ from datetime import timedelta
 from io import BytesIO
 from tempfile import TemporaryDirectory
 
+from django.contrib.staticfiles import finders
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase, override_settings
+from django.core.handlers.wsgi import WSGIHandler
+from django.test import Client, RequestFactory, TestCase, override_settings
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
@@ -55,6 +59,30 @@ class SocialViewTests(TestCase):
 
         self.assertContains(feed_response, 'Your feed starts here.')
         self.assertContains(profile_response, 'No posts yet.')
+
+    def test_nested_pages_use_the_discoverable_root_static_stylesheet_url(self):
+        response = self.client.get(
+            reverse('social:profile', args=(self.other.username,))
+        )
+
+        self.assertContains(response, 'href="/static/social/site.css"')
+        self.assertIsNotNone(finders.find('social/site.css'))
+
+    def test_debug_static_url_serves_the_stylesheet(self):
+        state = {}
+
+        def start_response(status, headers, exc_info=None):
+            state['status'] = status
+            state['headers'] = dict(headers)
+
+        request = RequestFactory().get(static('social/site.css'))
+        body = b''.join(
+            StaticFilesHandler(WSGIHandler())(request.environ, start_response)
+        )
+
+        self.assertEqual(state['status'], '200 OK')
+        self.assertTrue(state['headers']['Content-Type'].startswith('text/css'))
+        self.assertIn(b'.site-header', body)
 
     def test_feed_renders_eligible_creatives_as_sponsored(self):
         now = timezone.now()
