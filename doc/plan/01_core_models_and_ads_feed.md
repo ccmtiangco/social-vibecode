@@ -50,18 +50,18 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 
 **Goal:** Add campaign ownership, creatives, simulated funding, and auditable impression accounting without integrating real payments.
 
-- [ ] Create and install an `advertising` app. Use the custom user model for campaign owners, purchasers, and impression viewers.
-- [ ] Implement `AdCampaign` with owner, name, status, start/end times, funded and spent totals, and timestamps. Define valid status transitions for draft, active, paused, and ended campaigns.
-- [ ] Implement `AdCreative` with campaign, copy/headline, optional image, destination URL, and active/approval state. Keep creatives separate so a campaign can contain multiple variations.
-- [ ] Implement append-only `AdPurchase` funding records and `AdImpression` records with campaign, creative, viewer, timestamp, and charged amount. Store all monetary values as integer minor currency units.
-- [ ] Add database constraints and indexes for campaign date/state lookups, ownership queries, and campaign-to-creative/purchase/impression lookups.
-- [ ] Implement a server-side simulated-purchase service that checks the authenticated user's campaign ownership and eligibility, validates the amount, then creates the purchase record and updates funded balance atomically.
-- [ ] Ensure simulated purchase does not collect payment credentials or claim that real money moved. Make the dashboard label the action and resulting budget as simulated.
-- [ ] Implement impression charging with an atomic budget check/update and a recorded charge; make repeated client submissions idempotent using an event key or an explicit duplicate-detection rule.
-- [ ] Use a transaction and row locking/conditional updates around balance changes. Document that SQLite has limited row-level locking and that real concurrent billing should use PostgreSQL.
-- [ ] Restrict campaign and creative changes to the owning ad manager or authorized staff; reject member access in the service/view layer, not only in templates.
-- [ ] Create and inspect the advertising migration after Phase 1, then verify model/admin behavior in Django admin.
-- [ ] Add tests for owner isolation, member denial, invalid campaign dates/status, atomic simulated funding, insufficient funds, and duplicate impression retries.
+- [x] Create and install an `advertising` app. Use the custom user model for campaign owners, purchasers, and impression viewers.
+- [x] Implement `AdCampaign` with owner, name, status, start/end times, funded and spent totals, and timestamps. Define valid status transitions for draft, active, paused, and ended campaigns.
+- [x] Implement `AdCreative` with campaign, copy/headline, optional image, destination URL, and active/approval state. Keep creatives separate so a campaign can contain more than one ad variation.
+- [x] Implement append-only `AdPurchase` funding records and `AdImpression` records with campaign, creative, viewer, timestamp, and charged amount. Store all monetary values as integer minor currency units.
+- [x] Add database constraints and indexes for campaign date/state lookups, ownership queries, and campaign-to-creative/purchase/impression lookups.
+- [x] Implement a server-side simulated-purchase service that checks the authenticated user's campaign ownership and eligibility, validates the amount, then creates the purchase record and updates funded balance atomically.
+- [x] Ensure simulated purchase does not collect payment credentials or claim that real money moved. The admin ledger labels purchases as simulated; Phase 5 adds the user-facing dashboard label.
+- [x] Implement impression charging with an atomic budget check/update and a recorded charge; make repeated client submissions idempotent using an event key or an explicit duplicate-detection rule.
+- [x] Use a transaction and row locking/conditional updates around balance changes. Document that SQLite has limited row-level locking and that real concurrent billing should use PostgreSQL.
+- [x] Restrict campaign and creative changes to the owning ad manager or authorized staff; reject member access in the service/view layer, not only in templates.
+- [x] Create and inspect the advertising migration after Phase 1, then verify model/admin behavior in Django admin.
+- [x] Add tests for owner isolation, member denial, invalid campaign dates/status, atomic simulated funding, insufficient funds, and duplicate impression retries.
 
 **Suggested commit:** `feat(advertising): add campaigns and simulated funding`
 
