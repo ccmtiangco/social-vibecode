@@ -29,4 +29,7 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += staticfiles_urlpatterns()
+    if settings.STATIC_URL.rstrip('/') != '/static':
+        # Some development proxies remove their mount prefix before forwarding.
+        urlpatterns += staticfiles_urlpatterns(prefix='/static/')
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,14 +1,16 @@
+import importlib
 from datetime import timedelta
 from io import BytesIO
 from tempfile import TemporaryDirectory
 
+from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.handlers.wsgi import WSGIHandler
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import clear_url_caches, reverse
 from django.utils import timezone
 from PIL import Image
 
@@ -83,6 +85,27 @@ class SocialViewTests(TestCase):
         self.assertEqual(state['status'], '200 OK')
         self.assertTrue(state['headers']['Content-Type'].startswith('text/css'))
         self.assertIn(b'.site-header', body)
+
+    def test_debug_urlconf_serves_static_path_after_proxy_strips_its_prefix(self):
+        import core.urls
+
+        debug_setting = settings.DEBUG
+        try:
+            with override_settings(DEBUG=True):
+                importlib.reload(core.urls)
+                clear_url_caches()
+                for path in (
+                    '/proxy/8000/static/social/site.css',
+                    '/static/social/site.css',
+                ):
+                    with self.subTest(path=path):
+                        response = self.client.get(path)
+                        self.assertEqual(response.status_code, 200)
+                        self.assertEqual(response['Content-Type'], 'text/css')
+        finally:
+            with override_settings(DEBUG=debug_setting):
+                importlib.reload(core.urls)
+                clear_url_caches()
 
     def test_feed_renders_eligible_creatives_as_sponsored(self):
         now = timezone.now()
