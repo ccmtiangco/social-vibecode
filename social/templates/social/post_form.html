@@ -1,0 +1,23 @@
+{% extends "social/base.html" %}
+
+{% block title %}Write a post / Commonplace{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-heading">
+        <p class="eyebrow">A note for your people</p>
+        <h1>Put it <em>out there.</em></h1>
+    </div>
+    <div class="panel compose-panel">
+        <form method="post" enctype="multipart/form-data" class="stack-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p class="field-help">Share text, up to ten images, or both. Images may be JPEG, PNG, or WebP, up to 5 MB each.</p>
+            <div class="form-actions">
+                <a class="text-button" href="{% url 'social:feed' %}">Cancel</a>
+                <button class="button button-primary" type="submit">Publish post</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

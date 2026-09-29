@@ -1,0 +1,142 @@
+{% extends "social/base.html" %}
+{% load advertising_tags %}
+
+{% block title %}Campaign desk / Commonplace{% endblock %}
+
+{% block content %}
+<section class="dashboard-heading">
+    <div>
+        <p class="eyebrow">The studio</p>
+        <h1>Campaign <em>desk.</em></h1>
+        <p class="lede">Manage creative, timing, and simulated budgets in one place.</p>
+    </div>
+    {% if can_create_campaign %}
+        <a class="button button-primary" href="{% url 'advertising:campaign_create' %}">New campaign <span aria-hidden="true">&rarr;</span></a>
+    {% endif %}
+</section>
+
+<aside class="simulation-notice" role="note">
+    <strong>Demo billing only.</strong> Adding funds here changes a simulated budget. No payment will be processed.
+</aside>
+
+<section class="campaign-list" aria-label="Campaigns">
+    {% for campaign in campaigns %}
+        <article class="campaign-card">
+            <header class="campaign-card-heading">
+                <div>
+                    <p class="eyebrow">{{ campaign.owner.username }} / {{ campaign.currency_code }}</p>
+                    <h2>{{ campaign.name }}</h2>
+                </div>
+                <span class="status-pill status-{{ campaign.status }}">{{ campaign.get_status_display }}</span>
+            </header>
+
+            <div class="campaign-metrics">
+                <div>
+                    <span>Remaining</span>
+                    <strong>{{ campaign.remaining_minor|minor_units:campaign.currency_code }}</strong>
+                </div>
+                <div>
+                    <span>Spent</span>
+                    <strong>{{ campaign.spent_total_minor|minor_units:campaign.currency_code }}</strong>
+                </div>
+                <div>
+                    <span>Impressions</span>
+                    <strong>{{ campaign.recent_impressions|length }} recent</strong>
+                </div>
+                <div>
+                    <span>Flight dates</span>
+                    <strong>{{ campaign.starts_at|date:"M j" }} - {{ campaign.ends_at|date:"M j, Y" }}</strong>
+                </div>
+            </div>
+
+            <div class="campaign-actions">
+                <a class="text-button" href="{% url 'advertising:campaign_edit' campaign.pk %}">Edit details</a>
+                <a class="text-button" href="{% url 'advertising:creative_create' campaign.pk %}">Add creative</a>
+                {% if campaign.status == 'active' %}
+                    <form method="post" action="{% url 'advertising:campaign_status' campaign.pk %}">
+                        {% csrf_token %}<input type="hidden" name="status" value="paused">
+                        <button class="text-button" type="submit">Pause</button>
+                    </form>
+                    <form method="post" action="{% url 'advertising:campaign_status' campaign.pk %}">
+                        {% csrf_token %}<input type="hidden" name="status" value="ended">
+                        <button class="text-button text-danger" type="submit">End campaign</button>
+                    </form>
+                {% elif campaign.status == 'paused' %}
+                    <form method="post" action="{% url 'advertising:campaign_status' campaign.pk %}">
+                        {% csrf_token %}<input type="hidden" name="status" value="active">
+                        <button class="text-button" type="submit">Resume</button>
+                    </form>
+                    <form method="post" action="{% url 'advertising:campaign_status' campaign.pk %}">
+                        {% csrf_token %}<input type="hidden" name="status" value="ended">
+                        <button class="text-button text-danger" type="submit">End campaign</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            {% if campaign.status != 'ended' %}
+                <form class="purchase-row" method="post" action="{% url 'advertising:campaign_purchase' campaign.pk %}">
+                    {% csrf_token %}
+                    <label for="amount-{{ campaign.pk }}">Add simulated funds <small>(minor units, e.g. cents)</small></label>
+                    <div class="purchase-controls">
+                        <input id="amount-{{ campaign.pk }}" type="number" name="amount_minor" min="1" max="10000000" step="1" required>
+                        <button class="button button-dark" type="submit">Add demo budget</button>
+                    </div>
+                    <p class="field-help">This is not a real charge. The campaign ledger will mark this as simulated funding.</p>
+                </form>
+            {% endif %}
+
+            <section class="creative-list" aria-label="Creatives for {{ campaign.name }}">
+                <div class="section-heading">
+                    <h3>Creatives</h3>
+                    <span>{{ campaign.creatives.all|length }}</span>
+                </div>
+                {% for creative in campaign.creatives.all %}
+                    <div class="creative-row">
+                        {% if creative.image %}
+                            <img class="creative-thumb" src="{{ creative.image.url }}" alt="">
+                        {% else %}
+                            <div class="creative-thumb creative-thumb-empty" aria-hidden="true">C</div>
+                        {% endif %}
+                        <div class="creative-copy">
+                            <strong>{{ creative.headline }}</strong>
+                            <span>{% if creative.is_approved %}Approved{% else %}Awaiting staff approval{% endif %}{% if not creative.is_active %} / Paused{% endif %}</span>
+                        </div>
+                        <a class="text-button" href="{% url 'advertising:creative_edit' creative.pk %}">Edit</a>
+                        <form method="post" action="{% url 'advertising:creative_delete' creative.pk %}">
+                            {% csrf_token %}
+                            <button class="text-button text-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+                {% empty %}
+                    <p class="quiet-empty">No creatives yet. Add one to prepare this campaign for review.</p>
+                {% endfor %}
+            </section>
+
+            <details class="ledger-details">
+                <summary>Recent ledger activity</summary>
+                <div class="ledger-grid">
+                    <section>
+                        <h3>Simulated funding</h3>
+                        {% for purchase in campaign.recent_purchases %}
+                            <p><span>{{ purchase.created_at|date:"M j, H:i" }}</span><strong>{{ purchase.amount_minor|minor_units:campaign.currency_code }}</strong></p>
+                        {% empty %}<p class="quiet-empty">No funding recorded.</p>{% endfor %}
+                    </section>
+                    <section>
+                        <h3>Recent impressions</h3>
+                        {% for impression in campaign.recent_impressions %}
+                            <p><span>{{ impression.occurred_at|date:"M j, H:i" }}</span><strong>{{ impression.charged_amount_minor|minor_units:campaign.currency_code }}</strong></p>
+                        {% empty %}<p class="quiet-empty">No impressions recorded.</p>{% endfor %}
+                    </section>
+                </div>
+            </details>
+        </article>
+    {% empty %}
+        <div class="empty-state">
+            <p class="eyebrow">A clear canvas</p>
+            <h2>No campaigns yet.</h2>
+            <p>Create a campaign, add a creative, then fund it with simulated demo budget.</p>
+            {% if can_create_campaign %}<a class="button button-primary" href="{% url 'advertising:campaign_create' %}">Start a campaign</a>{% endif %}
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}

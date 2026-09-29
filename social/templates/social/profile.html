@@ -1,0 +1,45 @@
+{% extends "social/base.html" %}
+
+{% block title %}{{ profile_user.username }} / Commonplace{% endblock %}
+
+{% block content %}
+<section class="profile-heading">
+    <div class="profile-mark" aria-hidden="true">{{ profile_user.username|slice:":1"|upper }}</div>
+    <div class="profile-copy">
+        <p class="eyebrow">Commonplace member</p>
+        <h1>{{ profile_user.username }}</h1>
+        {% if profile_user.first_name or profile_user.last_name %}
+            <p>{{ profile_user.get_full_name }}</p>
+        {% endif %}
+        <p class="profile-date">Here since {{ profile_user.date_joined|date:"F Y" }}</p>
+    </div>
+    {% if request.user.is_authenticated and request.user.pk != profile_user.pk %}
+        {% if is_following %}
+            <form method="post" action="{% url 'social:unfollow' profile_user.username %}">
+                {% csrf_token %}
+                <button class="button button-outline" type="submit">Unfollow</button>
+            </form>
+        {% else %}
+            <form method="post" action="{% url 'social:follow' profile_user.username %}">
+                {% csrf_token %}
+                <button class="button button-primary" type="submit">Follow</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</section>
+
+<section class="profile-stream" aria-label="{{ profile_user.username }}'s posts">
+    <div class="section-heading">
+        <h2>Posts and reshares</h2>
+        <span>{{ posts|length }} recent</span>
+    </div>
+    {% for post in posts %}
+        {% include "social/_post_card.html" with post=post %}
+    {% empty %}
+        <div class="empty-state compact-empty">
+            <h2>No posts yet.</h2>
+            <p>When {{ profile_user.username }} shares something, it will appear here.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}

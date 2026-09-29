@@ -1,0 +1,63 @@
+{% extends "social/base.html" %}
+
+{% block title %}Your feed / Commonplace{% endblock %}
+
+{% block content %}
+<section class="feed-heading">
+    <div>
+        <p class="eyebrow">A chronological feed</p>
+        <h1>Your people,<br><em>in their own words.</em></h1>
+    </div>
+    <a class="button button-primary" href="{% url 'social:post_create' %}">Write a post <span aria-hidden="true">&rarr;</span></a>
+</section>
+
+<div class="feed-layout">
+    <section class="feed-list" aria-label="Posts from you and people you follow">
+        {% for entry in page.entries %}
+            {% if entry.is_sponsored %}
+                <article class="ad-card">
+                    <div class="sponsored-label">{{ entry.label }}</div>
+                    {% if entry.creative.image %}
+                        <a class="ad-image" href="{{ entry.creative.destination_url }}" target="_blank" rel="noopener noreferrer">
+                            <img src="{{ entry.creative.image.url }}" alt="{{ entry.creative.headline }}">
+                        </a>
+                    {% endif %}
+                    <div class="ad-copy">
+                        <p class="eyebrow">{{ entry.creative.campaign.name }}</p>
+                        <h2>{{ entry.creative.headline }}</h2>
+                        {% if entry.creative.body %}<p>{{ entry.creative.body|linebreaksbr }}</p>{% endif %}
+                        <a class="button button-outline" href="{{ entry.creative.destination_url }}" target="_blank" rel="noopener noreferrer">Learn more <span aria-hidden="true">&rarr;</span></a>
+                    </div>
+                </article>
+            {% else %}
+                {% include "social/_post_card.html" with post=entry.post %}
+            {% endif %}
+        {% empty %}
+            <div class="empty-state">
+                <p class="eyebrow">A blank page</p>
+                <h2>Your feed starts here.</h2>
+                <p>Write a post or follow someone to bring their updates into your timeline.</p>
+                <a class="button button-primary" href="{% url 'social:post_create' %}">Write the first post</a>
+            </div>
+        {% endfor %}
+
+        {% if page.has_next %}
+            <nav class="pagination" aria-label="Feed pages">
+                <a class="button button-outline" href="?cursor={{ page.next_cursor|urlencode }}">Older posts <span aria-hidden="true">&darr;</span></a>
+            </nav>
+        {% else %}
+            {% if page.entries %}<p class="feed-end">You are all caught up.</p>{% endif %}
+        {% endif %}
+    </section>
+
+    <aside class="feed-aside">
+        <div class="aside-note">
+            <p class="eyebrow">The shape of this feed</p>
+            <p>Posts appear in chronological order. Sponsored notes are labelled and kept separate from the people you follow.</p>
+        </div>
+        {% if request.user.user_type == 'ad_manager' %}
+            <a class="aside-link" href="/ads/">Manage a campaign <span aria-hidden="true">&rarr;</span></a>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

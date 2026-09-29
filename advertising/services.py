@@ -22,7 +22,7 @@ class IdempotencyConflict(ValidationError):
     pass
 
 
-def _require_campaign_access(actor, campaign):
+def require_campaign_access(actor, campaign):
     if (
         not actor
         or not getattr(actor, 'is_authenticated', False)
@@ -63,7 +63,7 @@ def purchase_campaign(*, actor, campaign_id, amount_minor):
         .select_related('owner')
         .get(pk=campaign_id)
     )
-    _require_campaign_access(actor, campaign)
+    require_campaign_access(actor, campaign)
     _validate_purchase_amount(amount_minor)
 
     now = timezone.now()
@@ -116,7 +116,7 @@ def transition_campaign_status(*, actor, campaign_id, status):
         .select_related('owner')
         .get(pk=campaign_id)
     )
-    _require_campaign_access(actor, campaign)
+    require_campaign_access(actor, campaign)
 
     if status not in AdCampaign.Status.values:
         raise ValidationError({'status': 'Unknown campaign status.'})

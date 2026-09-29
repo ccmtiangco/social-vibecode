@@ -1,0 +1,24 @@
+{% extends "social/base.html" %}
+
+{% block title %}{{ heading }} / Campaign desk{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-heading">
+        <p class="eyebrow">Campaign setup</p>
+        <h1>{{ heading }}<span>.</span></h1>
+        {% if campaign %}<p>Funding and spend are managed by the simulated ledger.</p>{% endif %}
+    </div>
+    <div class="panel compose-panel">
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p class="field-help">Impression cost and budgets use integer minor units. A new campaign starts as a draft.</p>
+            <div class="form-actions">
+                <a class="text-button" href="{% url 'advertising:dashboard' %}">Cancel</a>
+                <button class="button button-primary" type="submit">Save campaign</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

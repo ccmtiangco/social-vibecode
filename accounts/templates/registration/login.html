@@ -1,0 +1,21 @@
+{% extends "social/base.html" %}
+
+{% block title %}Log in / Commonplace{% endblock %}
+
+{% block content %}
+<section class="auth-layout auth-layout-compact">
+    <div class="auth-intro">
+        <p class="eyebrow">Welcome back</p>
+        <h1>Your people<br>are <em>right here.</em></h1>
+    </div>
+    <div class="panel auth-panel">
+        <h2>Log in</h2>
+        <form method="post" class="stack-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button button-primary" type="submit">Continue</button>
+        </form>
+        <p class="form-footnote">New to Commonplace? <a href="/accounts/register/">Create an account</a></p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "social/base.html" %}
+
+{% block title %}{{ heading }} / Campaign desk{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-heading">
+        <p class="eyebrow">{{ campaign.name }}</p>
+        <h1>{{ heading }}<span>.</span></h1>
+        <p>New and edited creatives require staff approval before appearing in feeds.</p>
+    </div>
+    <div class="panel compose-panel">
+        <form method="post" enctype="multipart/form-data" class="stack-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p class="field-help">Images accept JPEG, PNG, or WebP up to 5 MB. Use clear alt text when the image communicates information.</p>
+            <div class="form-actions">
+                <a class="text-button" href="{% url 'advertising:dashboard' %}">Cancel</a>
+                <button class="button button-primary" type="submit">Save creative</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

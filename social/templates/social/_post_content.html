@@ -1,0 +1,22 @@
+<div class="post-content">
+    {% if content_post.is_deleted %}
+        <div class="tombstone">This post has been removed.</div>
+    {% else %}
+        <div class="content-author">
+            <a href="{% url 'social:profile' content_post.author.username %}">{{ content_post.author.username }}</a>
+        </div>
+        {% if content_post.body %}
+            <p class="post-body">{{ content_post.body|linebreaksbr }}</p>
+        {% endif %}
+        {% if content_post.images.all %}
+            <div class="image-gallery image-count-{{ content_post.images.all|length }}">
+                {% for attachment in content_post.images.all %}
+                    <figure>
+                        <img src="{{ attachment.image.url }}" alt="{{ attachment.alt_text|default:content_post.author.username }}">
+                        {% if attachment.alt_text %}<figcaption>{{ attachment.alt_text }}</figcaption>{% endif %}
+                    </figure>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>

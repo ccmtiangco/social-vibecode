@@ -87,17 +87,17 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 
 **Goal:** Expose the social and campaign workflows through accessible, server-rendered HTML/CSS templates.
 
-- [ ] Add shared base/layout and responsive CSS for navigation, forms, post cards, image galleries, and sponsored labels.
-- [ ] Add registration and login/logout templates using Django authentication. Public registration must create members only; ad-manager role assignment stays on an authorized path.
-- [ ] Add user profile pages showing profile identity and the user's original posts and reshare activities.
-- [ ] Add post creation with text and multiple image upload support, correct `multipart/form-data` encoding, validation feedback, and CSRF protection.
-- [ ] Add follow/unfollow controls implemented as authenticated POST actions; show follow state and useful success/error messages.
-- [ ] Add reshare and optional quote-reshare POST actions that create a new activity referencing the original rather than copying its content.
-- [ ] Add the unified feed template for organic posts, reshare attribution, attached images, pagination, and visibly labelled sponsored creative cards.
-- [ ] Add an ad-manager dashboard for campaign creation/editing, creative management, dates/status, remaining budget, purchase history, and impression/spend summaries.
-- [ ] Add a simulated purchase action that is clearly labelled as a demo and displays the credited amount and resulting available budget.
-- [ ] Enforce authorization and ownership in views/services for every write action; do not rely on hiding controls in templates.
-- [ ] Add template/view tests for logged-out redirects, CSRF-safe POST routes, member/ad-manager access boundaries, and empty/error states.
+- [x] Add shared base/layout and responsive CSS for navigation, forms, post cards, image galleries, and sponsored labels.
+- [x] Add registration and login/logout templates using Django authentication. Public registration must create members only; ad-manager role assignment stays on an authorized path.
+- [x] Add user profile pages showing profile identity and the user's original posts and reshare activities.
+- [x] Add post creation with text and multiple image upload support, correct `multipart/form-data` encoding, validation feedback, and CSRF protection.
+- [x] Add follow/unfollow controls implemented as authenticated POST actions; show follow state and useful success/error messages.
+- [x] Add reshare and optional quote-reshare POST actions that create a new activity referencing the original rather than copying its content.
+- [x] Add the unified feed template for organic posts, reshare attribution, attached images, pagination, and visibly labelled sponsored creative cards.
+- [x] Add an ad-manager dashboard for campaign creation/editing, creative management, dates/status, remaining budget, purchase history, and impression/spend summaries.
+- [x] Add a simulated purchase action that is clearly labelled as a demo and displays the credited amount and resulting available budget.
+- [x] Enforce authorization and ownership in views/services for every write action; do not rely on hiding controls in templates.
+- [x] Add template/view tests for logged-out redirects, CSRF-safe POST routes, member/ad-manager access boundaries, and empty/error states.
 - [ ] Manually check keyboard navigation, labels/alt text, responsive layout at narrow and wide viewport sizes, and visible sponsored disclosure.
 
 **Suggested commit:** `feat(web): add social and campaign templates`

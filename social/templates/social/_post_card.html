@@ -1,0 +1,31 @@
+<article class="post-card">
+    <header class="post-meta">
+        {% if post.reshared_post_id %}
+            <a class="post-author" href="{% url 'social:profile' post.author.username %}">{{ post.author.username }}</a>
+            <span class="reshare-note">reshared</span>
+        {% else %}
+            <a class="post-author" href="{% url 'social:profile' post.author.username %}">{{ post.author.username }}</a>
+        {% endif %}
+        <time datetime="{{ post.created_at|date:'c' }}">{{ post.created_at|date:'M j, Y - H:i' }}</time>
+    </header>
+
+    {% if post.is_deleted %}
+        <div class="tombstone">This post has been removed.</div>
+    {% elif post.reshared_post_id %}
+        {% if post.body %}<p class="reshare-comment">{{ post.body|linebreaksbr }}</p>{% endif %}
+        {% include "social/_post_content.html" with content_post=post.reshared_post %}
+    {% else %}
+        {% include "social/_post_content.html" with content_post=post %}
+    {% endif %}
+
+    {% if request.user.is_authenticated and not post.is_deleted %}
+        <footer class="post-actions">
+            <form method="post" action="{% url 'social:reshare' post.pk %}" class="reshare-form">
+                {% csrf_token %}
+                <label class="visually-hidden" for="reshare-{{ post.pk }}">Add a comment to your reshare</label>
+                <input id="reshare-{{ post.pk }}" name="body" maxlength="500" placeholder="Add a comment (optional)">
+                <button class="text-button" type="submit">Reshare</button>
+            </form>
+        </footer>
+    {% endif %}
+</article>
