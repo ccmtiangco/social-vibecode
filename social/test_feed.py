@@ -282,3 +282,22 @@ class FeedServiceTests(TestCase):
                 if entry.post.reshared_post_id:
                     _ = entry.post.reshared_post.author.username
                 list(entry.post.images.all())
+
+    @override_settings(FEED_AD_INTERVAL=2, FEED_MAX_ADS_PER_PAGE=1, FEED_PAGE_SIZE=4)
+    def test_feed_query_count_stays_bounded_when_posts_and_ads_are_rendered(self):
+        original = self.create_post(self.followed, 'Original')
+        create_post(author=self.viewer, body='Reshare', reshared_post=original)
+        self.create_post(self.followed, 'Another post')
+        self.create_post(self.viewer, 'My post')
+        self.create_ad('query-budget-ad')
+
+        with self.assertNumQueries(3):
+            page = get_feed_page(viewer=self.viewer)
+            for entry in page.entries:
+                if entry.is_sponsored:
+                    _ = entry.creative.campaign.name
+                else:
+                    _ = entry.post.author.username
+                    if entry.post.reshared_post_id:
+                        _ = entry.post.reshared_post.author.username
+                    list(entry.post.images.all())

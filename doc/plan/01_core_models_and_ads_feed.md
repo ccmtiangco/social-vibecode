@@ -98,7 +98,7 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 - [x] Add a simulated purchase action that is clearly labelled as a demo and displays the credited amount and resulting available budget.
 - [x] Enforce authorization and ownership in views/services for every write action; do not rely on hiding controls in templates.
 - [x] Add template/view tests for logged-out redirects, CSRF-safe POST routes, member/ad-manager access boundaries, and empty/error states.
-- [ ] Manually check keyboard navigation, labels/alt text, responsive layout at narrow and wide viewport sizes, and visible sponsored disclosure.
+- [x] Manually check keyboard navigation, labels/alt text, responsive layout at narrow and wide viewport sizes, and visible sponsored disclosure. (Performed locally by the user.)
 
 **Suggested commit:** `feat(web): add social and campaign templates`
 
@@ -106,23 +106,31 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 
 **Goal:** Verify the combined system and document the MVP's known limitations before rendezvous.
 
-- [ ] Run the complete automated test suite and resolve failures before considering the implementation branch ready.
-- [ ] Run Django system checks and confirm there are no unapplied migrations or accidental model changes missing migrations.
-- [ ] Verify custom-user migration ordering from a clean local database: the custom user is established before social and advertising foreign keys are applied.
-- [ ] Test permissions end to end: member registration cannot self-assign ad-manager status; members cannot create/manage campaigns; ad managers cannot access another owner's campaign; staff can perform intended administrative actions.
-- [ ] Test uploads end to end: valid image acceptance, invalid/non-image rejection, configured size limits, multiple images, correct rendering, and cleanup/tombstone behavior.
-- [ ] Test social actions end to end: follow/unfollow idempotence, self-follow rejection, post validation, reshare attribution, original-content rendering, and original deletion behavior.
-- [ ] Test feed behavior end to end: only own/followed activity appears, order remains chronological, cursor pages neither skip nor duplicate organic items, ads appear at the configured interval/cap, and exhausted/paused/out-of-window campaigns are not served.
-- [ ] Test simulated ad accounting end to end: purchase history and balance are correct, impression charging stops at budget exhaustion, duplicate events do not double-charge, and every served creative is labelled sponsored.
-- [ ] Review query counts on a representative feed page to catch N+1 regressions and confirm page/candidate limits are bounded.
-- [ ] Perform a manual browser walkthrough covering registration/login, profile, post/image creation, follow/unfollow, reshare, feed pagination, campaign setup, simulated purchase, and sponsored placement.
-- [ ] Record remaining scope limitations: local media storage is development-only, purchases are simulated, and SQLite is not the target for concurrent production ad accounting.
+- [x] Run the complete automated test suite and resolve failures before considering the implementation branch ready.
+- [x] Run Django system checks and confirm there are no unapplied migrations or accidental model changes missing migrations.
+- [x] Verify custom-user migration ordering from a clean local database: the custom user is established before social and advertising foreign keys are applied.
+- [x] Test permissions end to end: member registration cannot self-assign ad-manager status; members cannot create/manage campaigns; ad managers cannot access another owner's campaign; staff can perform intended administrative actions.
+- [x] Test uploads end to end: valid image acceptance, invalid/non-image rejection, configured size limits, multiple images, correct rendering, and cleanup/tombstone behavior.
+- [x] Test social actions end to end: follow/unfollow idempotence, self-follow rejection, post validation, reshare attribution, original-content rendering, and original deletion behavior.
+- [x] Test feed behavior end to end: only own/followed activity appears, order remains chronological, cursor pages neither skip nor duplicate organic items, ads appear at the configured interval/cap, and exhausted/paused/out-of-window campaigns are not served.
+- [x] Test simulated ad accounting end to end: purchase history and balance are correct, impression charging stops at budget exhaustion, duplicate events do not double-charge, and every served creative is labelled sponsored.
+- [x] Review query counts on a representative feed page to catch N+1 regressions and confirm page/candidate limits are bounded.
+- [x] Perform a manual browser walkthrough covering registration/login, profile, post/image creation, follow/unfollow, reshare, feed pagination, campaign setup, simulated purchase, and sponsored placement. (Performed locally by the user.)
+- [x] Record remaining scope limitations: local media storage is development-only, purchases are simulated, and SQLite is not the target for concurrent production ad accounting.
 
 **Suggested commit:** `test: cover social permissions and ad feed behavior`
 
 ## Completion Criteria
 
-- [ ] All six phases are complete and their focused tests pass.
-- [ ] A clean local database can be migrated and the main member and ad-manager journeys can be completed manually.
-- [ ] No real payment processing, production media credentials, or secrets were introduced as part of the MVP.
-- [ ] The implementation branch is ready for the workflow's rendezvous step; update living documentation during the later sync-docs step.
+- [x] All six phases are complete and their focused tests pass.
+- [x] A clean local database can be migrated and the main member and ad-manager journeys can be completed manually.
+- [x] No real payment processing, production media credentials, or secrets were introduced as part of the MVP.
+- [x] The implementation branch is ready for the workflow's rendezvous step; update living documentation during the later sync-docs step.
+
+## Phase 6 Scope Notes
+
+- Uploaded media uses local `MEDIA_ROOT` storage for development. Production requires durable object storage and suitable delivery configuration.
+- Campaign purchases are simulated only; no payment gateway, card collection, refunds, or payment-provider webhooks are implemented.
+- The feed filters and renders eligible ads, but rendering does not itself record an impression. A real rendered/viewed impression event must call `charge_impression` before spend is deducted.
+- SQLite is suitable for local development. Budget updates use conditional database updates, but production concurrent billing should use PostgreSQL because SQLite does not provide effective row-level `select_for_update` locks.
+- Feed generation is fan-out-on-read and public-only. Private accounts, blocks, advanced targeting, and high-volume timeline fan-out remain out of scope.
