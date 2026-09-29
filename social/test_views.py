@@ -65,7 +65,7 @@ class SocialViewTests(TestCase):
             reverse('social:profile', args=(self.other.username,))
         )
 
-        self.assertContains(response, 'href="/static/social/site.css"')
+        self.assertContains(response, 'href="/proxy/8000/static/social/site.css"')
         self.assertIsNotNone(finders.find('social/site.css'))
 
     def test_debug_static_url_serves_the_stylesheet(self):
