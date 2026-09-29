@@ -29,20 +29,20 @@ This plan turns the decisions in [the architecture study](../study/01_architectu
 
 **Goal:** Implement social data on top of the migrated custom user, with safe image uploads and usable admin/seed controls.
 
-- [ ] Create and install a `social` app. Reference users through `settings.AUTH_USER_MODEL` rather than importing Django's default user model.
-- [ ] Implement `Post` with author, optional body, creation timestamp, and nullable self-reference `reshared_post`; a non-null reference represents a reshare activity, and body text on that activity is optional quote commentary.
-- [ ] Implement `PostImage` with a foreign key to `Post`, `ImageField`, ordering, optional alt text, and upload paths that do not trust user-supplied filenames.
-- [ ] Implement `Follow` with follower, followed, and creation timestamp; enforce unique `(follower, followed)` pairs and prohibit self-following.
-- [ ] Add feed and relationship indexes: posts by author and descending creation time/ID, reshares by original post, and follows in both lookup directions.
-- [ ] Validate that an original post has text or at least one image, that a reshare references an original, and that a post cannot reshare itself. Perform post-plus-image creation atomically so failed image validation does not leave partial posts.
-- [ ] Decide and implement original-post deletion behavior that preserves/tombstones originals with reshares instead of leaving blank reshares.
-- [ ] Add `Pillow` for image validation and record it in the project's dependency manifest; add a manifest if none exists when implementation begins.
-- [ ] Configure local `MEDIA_ROOT` and `MEDIA_URL` for development only. Set server-side file-size/type validation and document that production requires durable object storage rather than Django development media serving.
-- [ ] Define file cleanup behavior when posts or images are removed; do not assume deleting a database row removes a stored file.
-- [ ] Create and inspect the `social` migrations only after the Phase 1 baseline migration is applied.
-- [ ] Register users, posts, images, and follows in Django admin with useful list filters/search and safe handling of user/role fields.
-- [ ] Add an idempotent development seed command for sample members, follows, posts/images where practical, and reshares; make it safe to rerun and avoid hard-coded production credentials.
-- [ ] Add tests for relationship constraints, post validation, multi-image uploads, invalid/oversize files, reshare references, and deletion/tombstone behavior.
+- [x] Create and install a `social` app. Reference users through `settings.AUTH_USER_MODEL` rather than importing Django's default user model.
+- [x] Implement `Post` with author, optional body, creation timestamp, and nullable self-reference `reshared_post`; a non-null reference represents a reshare activity, and body text on that activity is optional quote commentary.
+- [x] Implement `PostImage` with a foreign key to `Post`, `ImageField`, ordering, optional alt text, and upload paths that do not trust user-supplied filenames.
+- [x] Implement `Follow` with follower, followed, and creation timestamp; enforce unique `(follower, followed)` pairs and prohibit self-following.
+- [x] Add feed and relationship indexes: posts by author and descending creation time/ID, reshares by original post, and follows in both lookup directions.
+- [x] Validate that an original post has text or at least one image, that a reshare references an original, and that a post cannot reshare itself. Perform post-plus-image creation atomically so failed image validation does not leave partial posts.
+- [x] Decide and implement original-post deletion behavior that preserves/tombstones originals with reshares instead of leaving blank reshares.
+- [x] Add `Pillow` for image validation and record it in the project's dependency manifest; add a manifest if none exists when implementation begins.
+- [x] Configure local `MEDIA_ROOT` and `MEDIA_URL` for development only. Set server-side file-size/type validation and document that production requires durable object storage rather than Django development media serving.
+- [x] Define file cleanup behavior when posts or images are removed; do not assume deleting a database row removes a stored file.
+- [x] Create and inspect the `social` migrations only after the Phase 1 baseline migration is applied.
+- [x] Register users, posts, images, and follows in Django admin with useful list filters/search and safe handling of user/role fields.
+- [x] Add an idempotent development seed command for sample members, follows, posts/images where practical, and reshares; make it safe to rerun and avoid hard-coded production credentials.
+- [x] Add tests for relationship constraints, post validation, multi-image uploads, invalid/oversize files, reshare references, and deletion/tombstone behavior.
 
 **Suggested commits:** `feat(social): add posts follows and media handling`; `chore(social): add admin and development seed data`
 
